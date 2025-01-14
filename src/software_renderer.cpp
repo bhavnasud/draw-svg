@@ -285,11 +285,11 @@ void SoftwareRendererImp::rasterize_line( float x0, float y0,
   // Implement Bresenham's algorithm (delete the line below and implement your own)
   // ref->rasterize_line_helper(x0, y0, x1, y1, width, height, color, this);
   if (x1 < x0) {
-    std::cout << "x0 " << x0 << "x1 " << x1 << std::endl;
+    //std::cout << "x0 " << x0 << "x1 " << x1 << std::endl;
     float temp = x1;
     x1 = x0;
     x0 = temp;
-    std::cout << "x0 after " << x0 << "x1 after " << x1 << std::endl;
+    //std::cout << "x0 after " << x0 << "x1 after " << x1 << std::endl;
     temp = y1;
     y1 = y0;
     y0 = temp;
@@ -329,11 +329,11 @@ void SoftwareRendererImp::rasterize_line( float x0, float y0,
     return;
   }
   if (y1 < y0) {
-    std::cout << "x0 " << x0 << "x1 " << x1 << std::endl;
+    //std::cout << "x0 " << x0 << "x1 " << x1 << std::endl;
     float temp = x1;
     x1 = x0;
     x0 = temp;
-    std::cout << "x0 after " << x0 << "x1 after " << x1 << std::endl;
+    //std::cout << "x0 after " << x0 << "x1 after " << x1 << std::endl;
     temp = y1;
     y1 = y0;
     y0 = temp;
@@ -384,6 +384,47 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
                                               Color color ) {
   // Task 1: 
   // Implement triangle rasterization
+
+  // Get bounding box values
+  float minX = std::min(x0, x1);
+  minX = std::min(minX, x2);
+  float maxX = std::max(x0, x1);
+  maxX = std::max(maxX, x2);
+  float minY = std::min(y0, y1);
+  minY = std::min(minY, y2);
+  float maxY = std::max(y0, y1);
+  maxY = std::max(maxY, y2);
+
+  //TODO: make sure points are listed clockwise!
+
+  // find all normal vectors
+  float p01_norm[2] = {y1 - y0, -1 * (x1 - x0)};
+  float p12_norm[2] = {y2 - y1, -1 * (x2 - x1)};
+  float p20_norm[2] = {y0 - y2, -1 * (x0 - x2)};
+
+  // Loop through all pixel centers within bounding box
+  for ( float x = floor(minX) + 0.5; x <= ceil(maxX) - 0.5; x += 1.0 )  {
+    for ( float y = floor(minY) + 0.5; y <= ceil(maxY) - 0.5; y += 1.0 )  {
+      float p01_v[2] = {x - x0, y - y0};
+      float p12_v[2] = {x - x1, y - y1};
+      float p20_v[2] = {x - x2, y - y2};
+
+      bool inside_p01 = (p01_norm[0] * p01_v[0] + p01_norm[1] * p01_v[1]) <= 0;
+      bool inside_p12 = (p12_norm[0] * p12_v[0] + p12_norm[1] * p12_v[1]) <= 0;
+      bool inside_p20 = (p20_norm[0] * p20_v[0] + p20_norm[1] * p20_v[1]) <= 0;
+      bool inside_tri = inside_p01 && inside_p12 && inside_p20;
+
+      if (inside_tri) {
+        std::cout << "!" << inside_tri << std::endl;
+        pixel_buffer[4 * ((int)floor(x) + (int)floor(y) * width)] = (uint8_t)(color.r * 255);
+        pixel_buffer[4 * ((int)floor(x) + (int)floor(y) * width) + 1] = (uint8_t)(color.g * 255);
+        pixel_buffer[4 * ((int)floor(x) + (int)floor(y) * width) + 2] = (uint8_t)(color.b * 255);
+        pixel_buffer[4 * ((int)floor(x) + (int)floor(y) * width) + 3] = (uint8_t)(color.a * 255);
+      }
+    }
+  }
+
+
 
   // Advanced Task
   // Implementing Triangle Edge Rules
