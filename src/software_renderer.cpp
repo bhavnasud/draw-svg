@@ -283,7 +283,96 @@ void SoftwareRendererImp::rasterize_line( float x0, float y0,
 
   // Task 0: 
   // Implement Bresenham's algorithm (delete the line below and implement your own)
-  ref->rasterize_line_helper(x0, y0, x1, y1, width, height, color, this);
+  // ref->rasterize_line_helper(x0, y0, x1, y1, width, height, color, this);
+  if (x1 < x0) {
+    std::cout << "x0 " << x0 << "x1 " << x1 << std::endl;
+    float temp = x1;
+    x1 = x0;
+    x0 = temp;
+    std::cout << "x0 after " << x0 << "x1 after " << x1 << std::endl;
+    temp = y1;
+    y1 = y0;
+    y0 = temp;
+  }
+  float dx = x1 - x0;
+  float dy = y1 - y0;
+  // Case 1: positive slope < 1
+  if (dy/dx >= 0 && dy/dx < 1) {
+    int y  = (int)floor(y0);
+    float eps = 0;
+    for ( int x = (int)floor(x0); x <= x1; x++ )  {
+      pixel_buffer[4 * (x + y * width)] = (uint8_t)(color.r * 255);
+      pixel_buffer[4 * (x + y * width) + 1] = (uint8_t)(color.g * 255);
+      pixel_buffer[4 * (x + y * width) + 2] = (uint8_t)(color.b * 255);
+      pixel_buffer[4 * (x + y * width) + 3] = (uint8_t)(color.a * 255);
+      eps += dy;
+      if (2 * eps >= dx )  {
+        y++;  eps -= dx;
+      }
+    }
+    return;
+  }
+  // Case 2: negative slope > -1
+  if (dy/dx < 0 && dy/dx >= -1) {
+    int y  = (int)floor(y0);
+    float eps = 0;
+    for ( int x = (int)floor(x0); x <= x1; x++ )  {
+      pixel_buffer[4 * (x + y * width)] = (uint8_t)(color.r * 255);
+      pixel_buffer[4 * (x + y * width) + 1] = (uint8_t)(color.g * 255);
+      pixel_buffer[4 * (x + y * width) + 2] = (uint8_t)(color.b * 255);
+      pixel_buffer[4 * (x + y * width) + 3] = (uint8_t)(color.a * 255);
+      eps -= dy;
+      if (2 * eps >= dx )  {
+        y--;  eps -= dx;
+      }
+    }
+    return;
+  }
+  if (y1 < y0) {
+    std::cout << "x0 " << x0 << "x1 " << x1 << std::endl;
+    float temp = x1;
+    x1 = x0;
+    x0 = temp;
+    std::cout << "x0 after " << x0 << "x1 after " << x1 << std::endl;
+    temp = y1;
+    y1 = y0;
+    y0 = temp;
+  }
+  dx = x1 - x0;
+  dy = y1 - y0;
+  // Case 3: positive slope > 1
+  if (dy/dx >= 1) {
+    int x  = (int)floor(x0);
+    float eps = 0;
+    for ( int y = (int)floor(y0); y <= y1; y++ )  {
+      pixel_buffer[4 * (x + y * width)] = (uint8_t)(color.r * 255);
+      pixel_buffer[4 * (x + y * width) + 1] = (uint8_t)(color.g * 255);
+      pixel_buffer[4 * (x + y * width) + 2] = (uint8_t)(color.b * 255);
+      pixel_buffer[4 * (x + y * width) + 3] = (uint8_t)(color.a * 255);
+      eps += dx;
+      if (2 * eps >= dy )  {
+        x++;  eps -= dy;
+      }
+    }
+    return;
+  }
+  // Case 4: negative slope < -1
+  if (dy/dx < -1) {
+    int x  = (int)floor(x0);
+    float eps = 0;
+    for ( int y = (int)floor(y0); y <= y1; y++ )  {
+      // std::cout << "x " << x << "y " << y << std::endl;
+      pixel_buffer[4 * (x + y * width)] = (uint8_t)(color.r * 255);
+      pixel_buffer[4 * (x + y * width) + 1] = (uint8_t)(color.g * 255);
+      pixel_buffer[4 * (x + y * width) + 2] = (uint8_t)(color.b * 255);
+      pixel_buffer[4 * (x + y * width) + 3] = (uint8_t)(color.a * 255);
+      eps -= dx;
+      if (2 * eps >= dy )  {
+        x--;  eps -= dy;
+      }
+    }
+    return;
+  }
 
   // Advanced Task
   // Drawing Smooth Lines with Line Width
