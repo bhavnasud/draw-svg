@@ -395,7 +395,16 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
   float maxY = std::max(y0, y1);
   maxY = std::max(maxY, y2);
 
-  //TODO: make sure points are listed clockwise!
+  // Make sure orientation is counter-clockwise
+  bool clockwise = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0) > 0;
+  if (clockwise) {
+    float temp = x1;
+    x1 = x0;
+    x0 = temp;
+    temp = y1;
+    y1 = y0;
+    y0 = temp;
+  }
 
   // find all normal vectors
   float p01_norm[2] = {y1 - y0, -1 * (x1 - x0)};
@@ -409,13 +418,12 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
       float p12_v[2] = {x - x1, y - y1};
       float p20_v[2] = {x - x2, y - y2};
 
-      bool inside_p01 = (p01_norm[0] * p01_v[0] + p01_norm[1] * p01_v[1]) <= 0;
-      bool inside_p12 = (p12_norm[0] * p12_v[0] + p12_norm[1] * p12_v[1]) <= 0;
-      bool inside_p20 = (p20_norm[0] * p20_v[0] + p20_norm[1] * p20_v[1]) <= 0;
+      bool inside_p01 = (p01_norm[0] * p01_v[0] + p01_norm[1] * p01_v[1]) >= 0;
+      bool inside_p12 = (p12_norm[0] * p12_v[0] + p12_norm[1] * p12_v[1]) >= 0;
+      bool inside_p20 = (p20_norm[0] * p20_v[0] + p20_norm[1] * p20_v[1]) >= 0;
       bool inside_tri = inside_p01 && inside_p12 && inside_p20;
 
       if (inside_tri) {
-        std::cout << "!" << inside_tri << std::endl;
         pixel_buffer[4 * ((int)floor(x) + (int)floor(y) * width)] = (uint8_t)(color.r * 255);
         pixel_buffer[4 * ((int)floor(x) + (int)floor(y) * width) + 1] = (uint8_t)(color.g * 255);
         pixel_buffer[4 * ((int)floor(x) + (int)floor(y) * width) + 2] = (uint8_t)(color.b * 255);
@@ -423,8 +431,6 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
       }
     }
   }
-
-
 
   // Advanced Task
   // Implementing Triangle Edge Rules
