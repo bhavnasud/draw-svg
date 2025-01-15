@@ -101,6 +101,9 @@ private:
 
 	// Primitive Drawing //
 
+	// Sample buffer pointer
+	std::vector<unsigned char>* sample_buffer = nullptr;
+
 	// Draws an SVG element
 	void draw_element(SVGElement* element);
 
