@@ -13,7 +13,10 @@ void ViewportImp::set_viewbox( float x, float y, float span ) {
   this->x = x;
   this->y = y;
   this->span = span; 
-
+  std::vector<double> svg_2_norm_data = {1/(2*span), 0, (-x/(2*span)) + 0.5,
+                                        0, 1/(2*span), (-y/(2*span)) + 0.5,
+                                        0, 0, 1};
+  this->svg_2_norm = Matrix3x3(&svg_2_norm_data[0]);
 }
 
 void ViewportImp::update_viewbox( float dx, float dy, float scale ) { 

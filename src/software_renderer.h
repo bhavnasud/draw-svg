@@ -105,7 +105,7 @@ private:
 	std::vector<unsigned char>* sample_buffer = nullptr;
 
 	// Draws an SVG element
-	void draw_element(SVGElement* element);
+	void draw_element(SVGElement* element, Matrix3x3 parent_transformation);
 
 	// Draws a point
 	void draw_point(Point& p);

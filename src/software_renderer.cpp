@@ -75,7 +75,7 @@ void SoftwareRendererImp::draw_svg( SVG& svg ) {
 
   // draw all elements
   for (size_t i = 0; i < svg.elements.size(); ++i) {
-    draw_element(svg.elements[i]);
+    draw_element(svg.elements[i], transformation);
   }
 
   // draw canvas outline
@@ -113,10 +113,11 @@ void SoftwareRendererImp::set_pixel_buffer( unsigned char* pixel_buffer,
   std::fill(sample_buffer->begin(), sample_buffer->end(), 255);
 }
 
-void SoftwareRendererImp::draw_element( SVGElement* element ) {
+void SoftwareRendererImp::draw_element( SVGElement* element, Matrix3x3 parent_transformation) {
 
 	// Task 3 (part 1):
 	// Modify this to implement the transformation stack
+  transformation = parent_transformation * element->transform;
 	switch (element->type) {
 	case POINT:
 		draw_point(static_cast<Point&>(*element));
@@ -145,14 +146,13 @@ void SoftwareRendererImp::draw_element( SVGElement* element ) {
 	default:
 		break;
 	}
-
+  transformation = parent_transformation;
 }
 
 
 // Primitive Drawing //
 
 void SoftwareRendererImp::draw_point( Point& point ) {
-
   Vector2D p = transform(point.position);
   rasterize_point( p.x, p.y, point.style.fillColor );
 
@@ -267,7 +267,7 @@ void SoftwareRendererImp::draw_image( Image& image ) {
 void SoftwareRendererImp::draw_group( Group& group ) {
 
   for ( size_t i = 0; i < group.elements.size(); ++i ) {
-    draw_element(group.elements[i]);
+    draw_element(group.elements[i], transformation);
   }
 
 }
